@@ -418,7 +418,7 @@ impl Window {
         // creating
         let mut set_win_attr = {
             let mut swa: ffi::XSetWindowAttributes = unsafe { mem::zeroed() };
-            swa.colormap = cmap;
+            swa.colormap = 0;
             swa.event_mask = ffi::ExposureMask | ffi::StructureNotifyMask |
                 ffi::VisibilityChangeMask | ffi::KeyPressMask | ffi::PointerMotionMask |
                 ffi::KeyReleaseMask | ffi::ButtonPressMask |
