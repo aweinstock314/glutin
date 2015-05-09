@@ -403,21 +403,17 @@ impl Window {
             }
         };
 
-        // getting the root window
-        let root = unsafe { (display.xlib.XDefaultRootWindow)(display.display) };
-
-        // creating the color map
-        let cmap = unsafe {
-            let cmap = (display.xlib.XCreateColormap)(display.display, root,
-                visual_infos.visual as *mut _, ffi::AllocNone);
-            // TODO: error checking?
-            cmap
+        // getting the parent window
+        let parent = if builder.parent.is_null() {
+                         unsafe { (display.xlib.XDefaultRootWindow)(display.display) }
+        } else {
+            builder.parent as ffi::Window
         };
 
         // creating
         let mut set_win_attr = {
             let mut swa: ffi::XSetWindowAttributes = unsafe { mem::zeroed() };
-            swa.colormap = cmap;
+            swa.colormap = 0;
             swa.event_mask = ffi::ExposureMask | ffi::StructureNotifyMask |
                 ffi::VisibilityChangeMask | ffi::KeyPressMask | ffi::PointerMotionMask |
                 ffi::KeyReleaseMask | ffi::ButtonPressMask |
@@ -439,7 +435,7 @@ impl Window {
 
         // finally creating the window
         let window = unsafe {
-            let win = (display.xlib.XCreateWindow)(display.display, root, 0, 0, dimensions.0 as libc::c_uint,
+            let win = (display.xlib.XCreateWindow)(display.display, parent, 0, 0, dimensions.0 as libc::c_uint,
                 dimensions.1 as libc::c_uint, 0, visual_infos.depth, ffi::InputOutput as libc::c_uint,
                 visual_infos.visual as *mut _, window_attributes,
                 &mut set_win_attr);
