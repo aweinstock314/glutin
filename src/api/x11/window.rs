@@ -662,6 +662,11 @@ impl Window {
         self.x.window as *mut libc::c_void
     }
 
+    /// See the docs in the crate root file.
+    pub fn get_api(&self) -> ::Api {
+        ::Api::OpenGl
+    }
+
 
     pub fn set_window_resize_callback(&mut self, _: Option<fn(u32, u32)>) {
     }
