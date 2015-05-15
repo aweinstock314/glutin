@@ -186,6 +186,8 @@ impl<'a> Iterator for PollEventsIterator<'a> {
 
                     let state = if xev.get_type() == ffi::KeyPress { Pressed } else { Released };
 
+                    let mut kp_keysym = 0;
+
                     let written = unsafe {
                         use std::str;
 
@@ -193,7 +195,7 @@ impl<'a> Iterator for PollEventsIterator<'a> {
                         let raw_ev: *mut ffi::XKeyEvent = event;
                         let count = ffi::Xutf8LookupString(self.window.x.ic, mem::transmute(raw_ev),
                             mem::transmute(buffer.as_mut_ptr()),
-                            buffer.len() as libc::c_int, ptr::null_mut(), ptr::null_mut());
+                            buffer.len() as libc::c_int, &mut kp_keysym, ptr::null_mut());
 
                         str::from_utf8(&buffer[..count as usize]).unwrap_or("").to_string()
                     };
@@ -205,8 +207,12 @@ impl<'a> Iterator for PollEventsIterator<'a> {
                         }
                     }
 
-                    let keysym = unsafe {
+                    let mut keysym = unsafe {
                         ffi::XKeycodeToKeysym(self.window.x.display, event.keycode as ffi::KeyCode, 0)
+                    };
+
+                    if (ffi::XK_KP_Space as u64 <= keysym) || (keysym <= ffi::XK_KP_9 as u64) {
+                        keysym = kp_keysym
                     };
 
                     let vkey =  events::keycode_to_element(keysym as libc::c_uint);
