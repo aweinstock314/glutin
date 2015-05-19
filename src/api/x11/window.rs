@@ -6,7 +6,6 @@ use std::{mem, ptr};
 use std::cell::Cell;
 use std::sync::atomic::AtomicBool;
 use std::collections::VecDeque;
-use super::ffi;
 use std::sync::{Arc, Mutex, Once, ONCE_INIT, Weak};
 
 use Api;
@@ -87,18 +86,18 @@ impl WindowProxy {
         if let Some(x) = self.x.upgrade() {
             let mut xev = ffi::XClientMessageEvent {
                 type_: ffi::ClientMessage,
-                window: x.window,
+                window: (*x).window,
                 format: 32,
                 message_type: 0,
                 serial: 0,
                 send_event: 0,
-                display: x.display,
+                display: (*x).display.display,
                 data: unsafe { mem::zeroed() },
             };
 
             unsafe {
-                (self.x.display.xlib.XSendEvent)(self.x.display.display, self.x.window, 0, 0, mem::transmute(&mut xev));
-                (self.x.display.xlib.XFlush)(self.x.display.display);
+                ((*x).display.xlib.XSendEvent)((*x).display.display, (*x).window, 0, 0, mem::transmute(&mut xev));
+                ((*x).display.xlib.XFlush)((*x).display.display);
             }
         }
     }
