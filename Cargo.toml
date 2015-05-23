@@ -67,3 +67,11 @@ osmesa-sys = "0.0.5"
 wayland-client = "0.1.6"
 wayland-kbd = "0.1.1"
 x11-dl = "=1.0.1"
+
+[target.i686-unknown-linux-gnu.dependencies.x11]
+version = "*"
+features = ["xlib", "xf86vmode", "xcursor"]
+
+[target.x86_64-unknown-linux-gnu.dependencies.x11]
+version = "*"
+features = ["xlib", "xf86vmode", "xcursor"]
